@@ -1,6 +1,6 @@
 {
   "name": "fetchnode",
-  "version": "1.0.0",
+  "version": "1.5.0",
   "description": "Fetches known anime image hosting sites like Danbooru and Gelbooru.",
   "main": "main.js",
   "scripts": {
