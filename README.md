@@ -7,5 +7,5 @@
 > Gelbooru <br />
 > rule34 <br />
 > Paheal <br />
- and etc ( too lazy to add them here) <br />
+ and etc ( too lazy to add them here ) <br />
  refer to the sites.json if you like <br />
