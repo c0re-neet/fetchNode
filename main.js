@@ -306,7 +306,7 @@ const getresultdan = async () => {
 
                         if (shref == invalid || `${post.file_ext}` == 'mp4' || `${post.md5}` == 'undefined') { console.log('blocked an invalid file'); --i; }
 
-                        else //if (shref != invalid || `${post.file_ext}` != 'mp4' || `${name}` != 'undefined.png') 
+                        else
                         {
                             LinkServed.push(shref);
                             LinkName.push(`danbooru_${name}`)
@@ -408,7 +408,7 @@ const ParseBooruResults = async () => {
             }  catch 
                 {
                     console.log('\nSomething Went Wrong ... [ Invalid Name Search / API Hook no response ] \n')
-                    //Setup();
+                    Setup();
                 }
         });
 
