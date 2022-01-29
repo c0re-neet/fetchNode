@@ -6,7 +6,7 @@
   **You need to have NodeJS installed for this to work** <br />
   Just redirect the directory to be the same as the folder it's in, then type 'node main.js' <br />
 
-## Features <br />
+## Notes <br />
   **Added Support to nhentai api** <br />
   TODO : Source Function to Parse Image's Origin <br />
 
