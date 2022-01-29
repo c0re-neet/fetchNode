@@ -1,7 +1,9 @@
 # fetchNode
- Fetches known anime image-hosting sites, with an option to download. <br />
  <br />
  **You need to have NodeJS installed for this to work** <br />
+
+## Usage <br />
+  just redirect the directory to be the same as the folder it's in, then type node 'main.js' ( without the quotes duh, it's simple ) <br />
 
 ## Sites it can fetch <br />
 > Danbooru <br />
