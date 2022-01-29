@@ -7,6 +7,7 @@
   Just redirect the directory to be the same as the folder it's in, then type 'node main.js' <br />
 
 ## Notes <br />
+  **Use Powershell to Run the Script.** <br />
   **Added Support to the nhentai api** <br />
   TODO : Source Function to Parse Image's Origin <br />
 
