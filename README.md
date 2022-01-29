@@ -1,9 +1,10 @@
-# fetchNode
+# fetchNode <br />
+  Utilizes APIs to get Results
  <br />
- **You need to have NodeJS installed for this to work** <br />
 
 ## Usage <br />
-  just redirect the directory to be the same as the folder it's in, then type node 'main.js' ( without the quotes duh, it's simple ) <br />
+  **You need to have NodeJS installed for this to work** <br />
+  Just redirect the directory to be the same as the folder it's in, then type node 'main.js' ( without the quotes duh, it's simple ) <br />
 
 ## Sites it can fetch <br />
 > Danbooru <br />
