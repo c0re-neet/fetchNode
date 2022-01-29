@@ -1,0 +1,20 @@
+{
+  "name": "fetchnode",
+  "version": "1.0.0",
+  "description": "Fetches known anime image hosting sites like Danbooru and Gelbooru.",
+  "main": "main.js",
+  "scripts": {
+    "test": "console.log(\"hello world!\")"
+  },
+  "author": "c-re",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.25.0",
+    "booru": "^2.5.3",
+    "cheerio": "^1.0.0-rc.10",
+    "danbooru": "^3.1.0",
+    "image-downloader": "^4.0.3",
+    "nhentai-node-api": "^1.1.2",
+    "prompt-sync": "^4.1.6"
+  }
+}
