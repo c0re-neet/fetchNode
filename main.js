@@ -27,13 +27,14 @@ const fetchimage = require('image-downloader');
 
 var data = {
     
+    PromptChoice : null,
     PromptSite : null,
     SearchName : null,
     PostRating : null,
     PostLimit : null,
     PromptDownload : null,
-    PromptFileLoc : null,
     PromptSequential : null,
+    PromptFileLoc : null,
     SetupFinish : false,
     CheckFinish : false
 
@@ -56,27 +57,35 @@ const initbruv = async function() {
 
     await SanitizeInputs();
 
-    console.log(data);
-
 }
 
 function Setup() {
 
-    data.PromptSite = prompt('What Site To Parse Image From? ').trim().toLowerCase();
+    data.PromptChoice = prompt('Decision ( Search | Source ): ').trim().toLowerCase();
+
+    if (data.PromptChoice == `search`) 
+    {
+        data.PromptSite = prompt('What Site To Parse Image From? ').trim().toLowerCase();
+    }
 
     data.SearchName = prompt('Search for? ');
-    if (checkArray(data.PromptSite, listboorus) == true) {
-        if (data.PromptSite == 'rule34') { /* lol */}
+    if (checkArray(data.PromptSite, listboorus) == true || data.PromptSite != 'nhentai') {
+        if (data.PromptSite == 'rule34') { /* lol */ }
         else {
             data.PostRating = data.PromptSite == 'danbooru' ? prompt('1 - Safe | 2 - Questionable | 3 - Explicit: ') : prompt('1 - Safe | 2 - Questionable | 3 - Explicit | 4 - Unrated: ');
             data.PostRating = Number(data.PostRating.trim());
         }
     }
-    data.PostLimit = prompt('How many Image/s you wanna parse? ');
+
+    if (data.PromptSite != 'nhentai') 
+    {
+        data.PostLimit = prompt('How many Image/s you wanna parse? ');
+    }
+    
     data.PromptDownload = prompt('Download locally? (Y / N) ').trim().toLowerCase();
     if (data.PromptDownload == 'y') {
-        data.PromptFileLoc = prompt('Pathfile of the download: ').trim();
         data.PromptSequential = prompt('Sequential Download?  (Y / N) ').trim().toLowerCase();
+        data.PromptFileLoc = prompt('Pathfile of the download: ').trim();
         if (!directoryExists(data.PromptFileLoc)) {
             console.log('[ INVALID FILE PATH ]')
             Setup();
@@ -84,18 +93,6 @@ function Setup() {
     }
 
     return data.SetupFinish = true;
-}
-
-function directoryExists(fileloc) {
-    var loc = path.dirname(fileloc)
-
-    if (fs.existsSync(loc)) {
-        return true;
-    }
-
-    else {
-        return false;
-    }
 }
 
 var imageindex = 0;
@@ -112,11 +109,13 @@ async function FetchURLDataMethod(siteurl, pathused, name) {
     })
   
     response.data.pipe(patch)
+    imageindex++
   
     return new Promise((resolve, reject) => {
       patch.on('finish', resolve)
       patch.on('error', reject)
     })
+
 }
 
 async function ImgDownloadWrapperMethod(siteurl, path, name) {
@@ -144,7 +143,7 @@ const SanitizeInputs = async () => {
 
     try {
         data.SearchName = data.SearchName.trim().toLowerCase().replace(/[ ]/g, '_');
-        data.PostLimit = Number(data.PostLimit.trim());
+        data.PostLimit =  data.PostLimit != null ? Number(data.PostLimit.trim()) : 0 ;
         data.PromptDownload = data.PromptDownload.trim();
         inputclean = true;
     } catch {
@@ -218,34 +217,16 @@ const SanitizeInputs = async () => {
 
     else if (data.CheckFinish == false) {
         console.log('[ INVALID SITE CHOICE ] \n')
+        reset(3)
         Setup()
     }
 
     else {
         console.log('Something Went Wrong ... \n')
+        reset(3)
         Setup()
     }
 
-}
-var found = false;
-function checkArray(stringcheck, arr) {
-
-    for (var i = 0; usablelist.length > i; i++) {
-
-        const _arr = arr
-
-        if (`${stringcheck}` == `${_arr[i]}`) {
-            found = true;
-        }
-
-        else if (usablelist.length == i){ console.log('Check Array None'); return false; }
-    }
-
-    if (found) {
-        found = false;
-        return true;
-    }
-    return false;
 }
 
 const ServeSite = async () => {
@@ -257,7 +238,7 @@ const ServeSite = async () => {
             break;
 
         case 'nhentai':
-            //getresultnh();
+            getresultnh();
             break;
 
         case 'dummy':
@@ -331,6 +312,7 @@ const getresultdan = async () => {
                 
             } catch {
                 console.log('\nSomething Went Wrong ... [ Invalid Name Search / API Hook no response ] \n')
+                reset(3)
                 Setup();
             }
         })
@@ -397,7 +379,6 @@ const ParseBooruResults = async () => {
                 if (LinkServed.length == data.PostLimit) 
                 {
                     console.log(`[ LINKS SERVED - ${hours}:${minutes}:${seconds} ] (${LinkServed.length})`)
-                    //console.log(posts)
                     if (data.PromptDownload == 'y')
                     {
                         console.log(`( Attempting to Download Parsed Data Now ... )`)
@@ -408,12 +389,130 @@ const ParseBooruResults = async () => {
             }  catch 
                 {
                     console.log('\nSomething Went Wrong ... [ Invalid Name Search / API Hook no response ] \n')
+                    reset(3)
                     Setup();
                 }
         });
 
     if (LinkServed.length == data.PostLimit) { 
         WriteImage()
+    }
+}
+
+var nsconf = {
+    sort : null,
+    _sort : null,
+    exists : null,
+    choice : null,
+    idserved : [],
+    count : 0
+}
+
+const getresultnh = async () => {
+    let isnum = /^\d+$/.test(data.SearchName);
+
+    var time = new Date();
+
+    var hours = time.getHours();
+    var minutes = time.getMinutes();
+    var seconds = time.getSeconds();
+
+    if (isnum) {
+        await nsite.exists(data.SearchName)
+            .then(bool => {
+                if (bool) exists = true;
+                else { console.log(`The Input Code doesn't Exist!`); exists = false; }
+            })
+
+        if (exists == false) return;
+        await nsite.getDoujin(data.SearchName)
+            .then(results => {
+
+                try {
+
+                    console.log(`( Attempting to Get Links Now ... ) [ NSITE API ]`)
+                    
+                    const name = results.title.pretty
+                    const lang = results.language
+                    const urls = results.pages
+                    const fid = results.id
+
+                    nsconf.count = urls.length;
+    
+                    for (var u = 0; urls.length > u; u++) {
+                        if (LinkServed.length == u) 
+                        {
+                            const fileparse = urls[u].split('/')
+                            
+                            const endfile = fileparse[fileparse.length - 1]
+                            const _endfile = endfile.split('.')
+                            const ext = _endfile[_endfile.length - 1]
+                            const filename = _endfile[_endfile.length - 2]
+
+                            const _name = `${filename}.${ext}`
+                            LinkServed.push(urls[u])
+                            LinkName.push(`nsite_${_name}`)
+                            if (data.PromptDownload == 'n') {
+                                console.log(`${urls[u]} - ${name} , ${lang}`)
+                            }
+                        }
+                    }
+
+                    if (LinkServed.length == urls.length) {
+                        console.log(`[ LINKS SERVED - ${hours}:${minutes}:${seconds} ]`)
+
+                        if (data.PromptDownload == 'y') {
+                            console.log(`( Attempting to Download Parsed Data Now ... )`)
+                            WriteImage()
+                        }
+
+                    }
+                
+                } catch {
+                    console.log('Something went wrong ... [ NSITE API GETDOUJIN ]')
+                    reset(3)
+                }
+       
+            })
+    }
+
+    else if (!isnum) {
+        data.SearchName = data.SearchName.replace(/[_]/g, ' '); // Revert back the string into actual spaces, I'll not touch the sanitize function anymore or it'll break.
+        nsconf.sort = prompt('Sort by? ( Popular | Week | Today | Recent ) ').trim().toLowerCase();
+        nsconf._sort = nsconf.sort == 'popular' ? 'popular' : nsconf.sort == 'recent' ? 'date' : `popular-${nsconf.sort}`;
+
+        await nsite.search(data.SearchName, nsconf._sort, 1)
+            .then(queue => {
+                try 
+                {
+                    for (var q = 0; queue.length > q; q++) {
+                        let id = queue[q].id
+                        let name = queue[q].title
+                        let language = queue[q].language
+                        let count = (q + 1)
+                        console.log(`${count}.) ${name} - ${language}`)
+                        nsconf.idserved.push(id)
+                    }
+    
+                    if (nsconf.idserved.length == queue.length) {
+                        console.log(`\n[ FINISHED LOG - ${hours}:${minutes}:${seconds} ] \n`)
+                        nsconf.choice = prompt('Choose on what to Parse? ').trim();
+                        let check = /^\d+$/.test(nsconf.choice)
+    
+                        nsconf.choice = check ? Number(nsconf.choice) : console.log('Invalid Input');
+                        nsconf.choice = (nsconf.choice - 1);
+                        data.SearchName = queue[nsconf.choice].id;
+    
+                        getresultnh()
+                        
+                    }
+                } catch {
+                    console.log('Something went wrong ... [ NSITE API SEARCH / FOUND NO RESULT ]');
+                    Setup();
+                    reset(3)
+                }
+
+            })
     }
 }
 
@@ -428,15 +527,14 @@ const WriteImage = async () => {
 
     for (var j = 0; LinkServed.length > j; j++) {
         data.PromptSequential == 'y' ? await ImgDownloadWrapperMethod(LinkServed[j], data.PromptFileLoc, LinkName[j]) : ImgDownloadWrapperMethod(LinkServed[j], data.PromptFileLoc, LinkName[j])
-        //console.log(`${imageindex}`)
     }
 
-    if (imageindex == data.PostLimit) {
+    if (imageindex == data.PostLimit || imageindex == nsconf.count) {
         console.log(`[ Served Downloads - ${hours}:${minutes}:${seconds} ] (${imageindex}) \n`)
-        //reset(3);
+        reset(3);
     }
 
-    if (imageindex != data.PostLimit) {
+    if (imageindex < data.PostLimit) {
 
         console.log('[ STARTING REDUNDANCY WRITE ]')
 
@@ -479,6 +577,7 @@ function reset(mode_index) { // data , link , all (integer)
             data.PostRating = null
             data.PostLimit = null
             data.PromptDownload = null
+            data.PromptSequential = null
             data.PromptFileLoc = null
             data.SetupFinish = false;
             data.CheckFinish = false;
@@ -486,8 +585,42 @@ function reset(mode_index) { // data , link , all (integer)
 
         case 2: case 3:
             LinkServed = []
+            nsconf.idserved = []
             break;
 
+    }
+}
+
+var found = false;
+function checkArray(stringcheck, arr) {
+
+    for (var i = 0; usablelist.length > i; i++) {
+
+        const _arr = arr
+
+        if (`${stringcheck}` == `${_arr[i]}`) {
+            found = true;
+        }
+
+        else if (usablelist.length == i){ console.log('Check Array None'); return false; }
+    }
+
+    if (found) {
+        found = false;
+        return true;
+    }
+    return false;
+}
+
+function directoryExists(fileloc) {
+    var loc = path.dirname(fileloc)
+
+    if (fs.existsSync(loc)) {
+        return true;
+    }
+
+    else {
+        return false;
     }
 }
 
