@@ -1,6 +1,7 @@
 # fetchNode
  Fetches known anime-hosting sites, with an option to download. <br />
  <br />
+ **You need to have NodeJS installed for this to work** <br />
 
 ## Sites it can fetch <br />
 > Danbooru <br />
