@@ -11,6 +11,7 @@ const prompt = require('prompt-sync') ({sigint: true}); // User Input
 const danbooru = require('danbooru');
 const req = require('booru')
 const nsite = require('nhentai-node-api')
+//const src = require('')
 
 /* initialize the list */
 const usablelist = ['danbooru', 'gelbooru', 'nhentai', 'rule34', 'paheal','dummy']
@@ -36,8 +37,8 @@ var data = {
     PromptSequential : null,
     PromptFileLoc : null,
     SetupFinish : false,
-    CheckFinish : false
-
+    CheckFinish : false,
+    
 }
 
 var LinkServed = [];
@@ -88,7 +89,7 @@ function Setup() {
         data.PromptFileLoc = prompt('Pathfile of the download: ').trim();
         if (!directoryExists(data.PromptFileLoc)) {
             console.log('[ INVALID FILE PATH ]')
-            Setup();
+            //Setup();
         }
     }
 
@@ -148,7 +149,7 @@ const SanitizeInputs = async () => {
         inputclean = true;
     } catch {
         console.log('[ INVALID INPUT FOUND ]')
-        Setup();
+        //Setup();
     }
 
     if (checkArray(data.PromptSite, usablelist) && inputclean) {
@@ -158,7 +159,7 @@ const SanitizeInputs = async () => {
 
     if (data.PostRating > 4) {
         console.log('[ INVALID RATING SETTING ]')
-        Setup()
+        //Setup()
     }
 
     if (data.PostRating <= 4 && data.CheckFinish == true && checkArray(data.PromptSite, listboorus)) {
@@ -218,13 +219,13 @@ const SanitizeInputs = async () => {
     else if (data.CheckFinish == false) {
         console.log('[ INVALID SITE CHOICE ] \n')
         reset(3)
-        Setup()
+        //Setup()
     }
 
     else {
         console.log('Something Went Wrong ... \n')
         reset(3)
-        Setup()
+        //Setup()
     }
 
 }
@@ -272,6 +273,8 @@ const getresultdan = async () => {
 
                 console.log(`( Attempting to Get Links Now ... ) [ DB API ]`)
 
+                clamp((data.PostLimit - 1), 0, posts.length) // Just Incase
+
                 for (var i = 0; data.PostLimit > i; i++) {
     
                     const invalid = 'https://danbooru.donmai.us/'
@@ -308,12 +311,16 @@ const getresultdan = async () => {
                         console.log(`( Attempting to Download Parsed Data Now ... )`)
                     }
 
+                    else {
+                        prompt('\nPress Anything to Exit ... ')
+                    }
+
                 }
                 
             } catch {
                 console.log('\nSomething Went Wrong ... [ Invalid Name Search / API Hook no response ] \n')
                 reset(3)
-                Setup();
+                //Setup();
             }
         })
 
@@ -343,6 +350,8 @@ const ParseBooruResults = async () => {
             try {
 
                 console.log(`( Attempting to Get Links Now ... ) [ REQ API ]`)
+
+                clamp((data.PostLimit - 1), 0, posts.length) // Just Incase
 
                 for (var k = 0; data.PostLimit > k; k++) {
 
@@ -384,13 +393,17 @@ const ParseBooruResults = async () => {
                         console.log(`( Attempting to Download Parsed Data Now ... )`)
                     }
 
+                    else {
+                        prompt('\nPress Anything to Exit ... ')
+                    }
+
                 }
 
             }  catch 
                 {
                     console.log('\nSomething Went Wrong ... [ Invalid Name Search / API Hook no response ] \n')
                     reset(3)
-                    Setup();
+                    //Setup();
                 }
         });
 
@@ -466,6 +479,10 @@ const getresultnh = async () => {
                             WriteImage()
                         }
 
+                        else {
+                            prompt('\nPress Anything to Exit ... ')
+                        }
+
                     }
                 
                 } catch {
@@ -508,7 +525,7 @@ const getresultnh = async () => {
                     }
                 } catch {
                     console.log('Something went wrong ... [ NSITE API SEARCH / FOUND NO RESULT ]');
-                    Setup();
+                    //Setup();
                     reset(3)
                 }
 
@@ -623,5 +640,8 @@ function directoryExists(fileloc) {
         return false;
     }
 }
+
+// Clamp number between two values with the following line:
+const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
 main();
