@@ -3,6 +3,10 @@
 //      - It's a script that parses Images from available sites given in the current features
 //         $ danbooru
 //         $ gelbooru
+//         $ safebooru
+//         $ rule34
+//         $ paheal
+//         $ nhentai
 //
 
 const prompt = require('prompt-sync') ({sigint: true}); // User Input
@@ -11,7 +15,6 @@ const prompt = require('prompt-sync') ({sigint: true}); // User Input
 const danbooru = require('danbooru');
 const req = require('booru')
 const nsite = require('nhentai-node-api')
-//const src = require('')
 
 /* initialize the list */
 const usablelist = ['danbooru', 'gelbooru', 'nhentai', 'rule34', 'paheal','dummy']
@@ -45,7 +48,8 @@ var LinkServed = [];
 var LinkName = [];
 
 function main() {
-    
+
+    reset(3)
     initbruv();
 
 }
@@ -89,7 +93,7 @@ function Setup() {
         data.PromptFileLoc = prompt('Pathfile of the download: ').trim();
         if (!directoryExists(data.PromptFileLoc)) {
             console.log('[ INVALID FILE PATH ]')
-            //Setup();
+            main()
         }
     }
 
@@ -148,63 +152,40 @@ const SanitizeInputs = async () => {
         data.PromptDownload = data.PromptDownload.trim();
         inputclean = true;
     } catch {
-        console.log('[ INVALID INPUT FOUND ]')
-        //Setup();
+        console.log('[ INVALID INPUT FOUND ]');
+        main();
     }
 
-    if (checkArray(data.PromptSite, usablelist) && inputclean) {
+    if ( checkArray(data.PromptSite, usablelist) && inputclean ) {
         data.CheckFinish = true;
         inputclean = false;
     }
 
-    if (data.PostRating > 4) {
+    if ( data.PostRating > 4 ) {
         console.log('[ INVALID RATING SETTING ]')
-        //Setup()
+        main();
     }
+
 
     if (data.PostRating <= 4 && data.CheckFinish == true && checkArray(data.PromptSite, listboorus)) {
 
-        if (data.PromptSite == 'danbooru') 
-        {
-            switch(data.PostRating) {
+        switch(data.PostRating) {
                 
-                case 1:
-                    data.PostRating = 'rating:safe'
-                    break;
-                
-                case 2:
-                    data.PostRating = 'rating:questionable'
-                    break;
-        
-                case 3:
-                    data.PostRating = 'rating:explicit'
-                    break;
+            case 1:
+                data.PostRating = 'rating:safe'
+                break;
+            
+            case 2:
+                data.PostRating = 'rating:questionable'
+                break;
+    
+            case 3:
+                data.PostRating = 'rating:explicit'
+                break;
 
-                case 4:
-                    data.PostRating = ''
-                    break;
-            }
-        }
-
-        else {
-            switch(data.PostRating) {
-                
-                case 1:
-                    data.PostRating = 'rating:safe'
-                    break;
-                
-                case 2:
-                    data.PostRating = 'rating:questionable'
-                    break;
-        
-                case 3:
-                    data.PostRating = 'rating:explicit'
-                    break;
-
-                case 4:
-                    data.PostRating = ''
-                    break;
-            }
+            case 4:
+                data.PostRating = ''
+                break;
         }
 
         ServeSite();
@@ -217,20 +198,18 @@ const SanitizeInputs = async () => {
     }
 
     else if (data.CheckFinish == false) {
-        console.log('[ INVALID SITE CHOICE ] \n')
-        reset(3)
-        //Setup()
+        console.log('[ INVALID SITE CHOICE ] \n');
+        main();
     }
 
     else {
-        console.log('Something Went Wrong ... \n')
-        reset(3)
-        //Setup()
+        console.log('Something Went Wrong ... \n');
+        main();
     }
 
 }
 
-const ServeSite = async () => {
+function ServeSite() {
 
     switch (data.PromptSite) {
 
@@ -260,12 +239,6 @@ const getresultdan = async () => {
         tags : `${data.SearchName} ${data.PostRating}`,
     }
 
-    var time = new Date();
-
-    var hours = time.getHours();
-    var minutes = time.getMinutes();
-    var seconds = time.getSeconds();
-
     const cachedposts = await dbr.posts(config)
         .then(posts => {
 
@@ -288,7 +261,7 @@ const getresultdan = async () => {
                         const name = `${post.md5}.${post.file_ext}`
                         const shref = url.href
 
-                        if (shref == invalid || `${post.file_ext}` == 'mp4' || `${post.md5}` == 'undefined') { console.log('blocked an invalid file'); --i; }
+                        if (shref == invalid || `${post.file_ext}` == 'mp4' || `${post.md5}` == 'undefined') { --i; }
 
                         else
                         {
@@ -305,7 +278,7 @@ const getresultdan = async () => {
     
                 if (LinkServed.length == data.PostLimit) 
                 {
-                    console.log(`[ LINKS SERVED - ${hours}:${minutes}:${seconds} ] (${LinkServed.length})`)
+                    console.log(`[ LINKS SERVED - ${time().hours}:${time().minutes}:${time().seconds} ] (${LinkServed.length})`)
                     if (data.PromptDownload == 'y')
                     {
                         console.log(`( Attempting to Download Parsed Data Now ... )`)
@@ -319,8 +292,7 @@ const getresultdan = async () => {
                 
             } catch {
                 console.log('\nSomething Went Wrong ... [ Invalid Name Search / API Hook no response ] \n')
-                reset(3)
-                //Setup();
+                main();
             }
         })
 
@@ -335,12 +307,6 @@ const ParseBooruResults = async () => {
         limit : (100 + data.PostLimit),
         rating : `${data.PostRating}`
     }
-
-    var time = new Date();
-
-    var hours = time.getHours();
-    var minutes = time.getMinutes();
-    var seconds = time.getSeconds();
 
     var tags = data.SearchName.split(' ')
     tags.push(data.PostRating)
@@ -387,7 +353,7 @@ const ParseBooruResults = async () => {
                 }
                 if (LinkServed.length == data.PostLimit) 
                 {
-                    console.log(`[ LINKS SERVED - ${hours}:${minutes}:${seconds} ] (${LinkServed.length})`)
+                    console.log(`[ LINKS SERVED - ${time().hours}:${time().minutes}:${time().seconds} ] (${LinkServed.length})`)
                     if (data.PromptDownload == 'y')
                     {
                         console.log(`( Attempting to Download Parsed Data Now ... )`)
@@ -402,8 +368,7 @@ const ParseBooruResults = async () => {
             }  catch 
                 {
                     console.log('\nSomething Went Wrong ... [ Invalid Name Search / API Hook no response ] \n')
-                    reset(3)
-                    //Setup();
+                    main();
                 }
         });
 
@@ -423,12 +388,6 @@ var nsconf = {
 
 const getresultnh = async () => {
     let isnum = /^\d+$/.test(data.SearchName);
-
-    var time = new Date();
-
-    var hours = time.getHours();
-    var minutes = time.getMinutes();
-    var seconds = time.getSeconds();
 
     if (isnum) {
         await nsite.exists(data.SearchName)
@@ -472,7 +431,7 @@ const getresultnh = async () => {
                     }
 
                     if (LinkServed.length == urls.length) {
-                        console.log(`[ LINKS SERVED - ${hours}:${minutes}:${seconds} ]`)
+                        console.log(`[ LINKS SERVED - ${time().hours}:${time().minutes}:${time().seconds} ]`)
 
                         if (data.PromptDownload == 'y') {
                             console.log(`( Attempting to Download Parsed Data Now ... )`)
@@ -487,7 +446,7 @@ const getresultnh = async () => {
                 
                 } catch {
                     console.log('Something went wrong ... [ NSITE API GETDOUJIN ]')
-                    reset(3)
+                    main();
                 }
        
             })
@@ -512,7 +471,7 @@ const getresultnh = async () => {
                     }
     
                     if (nsconf.idserved.length == queue.length) {
-                        console.log(`\n[ FINISHED LOG - ${hours}:${minutes}:${seconds} ] \n`)
+                        console.log(`\n[ FINISHED LOG - ${time().hours}:${time().minutes}:${time().seconds} ] \n`)
                         nsconf.choice = prompt('Choose on what to Parse? ').trim();
                         let check = /^\d+$/.test(nsconf.choice)
     
@@ -525,8 +484,7 @@ const getresultnh = async () => {
                     }
                 } catch {
                     console.log('Something went wrong ... [ NSITE API SEARCH / FOUND NO RESULT ]');
-                    //Setup();
-                    reset(3)
+                    main();
                 }
 
             })
@@ -534,11 +492,6 @@ const getresultnh = async () => {
 }
 
 const WriteImage = async () => {
-    var time = new Date();
-
-    var hours = time.getHours();
-    var minutes = time.getMinutes();
-    var seconds = time.getSeconds();
 
     if (data.PromptDownload == 'n') return;
 
@@ -547,11 +500,12 @@ const WriteImage = async () => {
     }
 
     if (imageindex == data.PostLimit || imageindex == nsconf.count) {
-        console.log(`[ Served Downloads - ${hours}:${minutes}:${seconds} ] (${imageindex}) \n`)
+        console.log(`[ Served Downloads - ${time().hours}:${time().minutes}:${time().seconds} ] (${imageindex}) \n`)
+        prompt('\nPress Anything to Exit ... ')
         reset(3);
     }
 
-    if (imageindex < data.PostLimit) {
+    else if (imageindex < data.PostLimit) {
 
         console.log('[ STARTING REDUNDANCY WRITE ]')
 
@@ -569,6 +523,7 @@ const WriteImage = async () => {
                 .then(() => 
                 {
                     console.log(`[ Redundancy Write ] Finished Serving: ${jacket[j]}`)
+                    prompt('\nPress Anything to Exit ... ')
                 })
                 .catch(console.log(`[ Request Failed / Timed-out ] ${jacket[j]}`))
                 attempt = jacket[j]
@@ -582,7 +537,34 @@ const WriteImage = async () => {
 
 }
 
-function reset(mode_index) { // data , link , all (integer)
+/// UTILITIES
+/*
+%
+%      reset
+%        type<int>
+%       @param mode_index - flushes the selected data when called.
+%            1 - Data Objects
+%            2 - Array Links
+%            3 - Everything
+%
+%     checkArray
+%        type<str>
+%       @param stringcheck - input string where that gets fed into an for loop
+%       @param arr - what array to check from
+%
+%      directoryExists
+%        type<str>
+%       @param fileloc - checks whether if the path exists
+%
+%      clamp
+%        type<int>
+%       @param num - integer to clamp
+%       @param min - minimum
+%       @param max - maximum
+%
+*/
+///
+function reset(mode_index) {
 
     if (mode_index > 3) return;
 
@@ -608,7 +590,7 @@ function reset(mode_index) { // data , link , all (integer)
     }
 }
 
-var found = false;
+
 function checkArray(stringcheck, arr) {
 
     for (var i = 0; usablelist.length > i; i++) {
@@ -616,16 +598,12 @@ function checkArray(stringcheck, arr) {
         const _arr = arr
 
         if (`${stringcheck}` == `${_arr[i]}`) {
-            found = true;
+            return true
         }
 
         else if (usablelist.length == i){ console.log('Check Array None'); return false; }
     }
 
-    if (found) {
-        found = false;
-        return true;
-    }
     return false;
 }
 
@@ -641,7 +619,16 @@ function directoryExists(fileloc) {
     }
 }
 
-// Clamp number between two values with the following line:
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+
+function time() {
+    var time = new Date();
+
+    let hours = time.getHours();
+    let minutes = time.getMinutes();
+    let seconds = time.getSeconds();
+
+    return { hours, minutes, seconds }
+}
 
 main();

@@ -14,6 +14,7 @@
   TODO : Source Function to Parse Image's Origin <br />
   TODO : Fix the bug with the download method returning a served promise yet not written into disk <br /> 
   TODO : Add a max image data size filter <br /> 
+  TODO : Refactor Everything once the Script is finished <br />
 
 ## Sites it can fetch <br />
 > Danbooru <br />
