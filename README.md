@@ -15,7 +15,7 @@
   TODO : Add a max image data size filter <br />
   TODO : Refactor Everything once the Script is finished <br />
   <br />
-  ISSUE : Sites with the Booru api serves some links behind a paywall, it may cause some pseudo-success downloads. <br />  
+  ISSUE : Sites with the Booru api may serve some links behind a paywall, thus causing some pseudo-success downloads. <br />  
 
 ## Sites it can fetch <br />
 > Danbooru <br />
