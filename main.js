@@ -147,7 +147,35 @@ const SanitizeInputs = async () => {
     var inputclean = false;
 
     try {
-        data.SearchName = data.SearchName.trim().toLowerCase().replace(/[ ]/g, '_');
+        data.SearchName = data.SearchName.trim().toLowerCase().split(' ')
+        let cachearr = []
+
+        if (data.SearchName.length > 1) {
+            for (var h = 0; data.SearchName.length > h; h++) {
+                let hasprths = /[(]/.test(data.SearchName[h])
+                let pred_prths = /[(]/.test(data.SearchName[h+1]) ? true : false
+    
+                if (hasprths) {
+                    cachearr.push(`${data.SearchName[h-1]}_${data.SearchName[h]}`)
+                }
+    
+                else if (!hasprths && !pred_prths) {
+                    cachearr.push(data.SearchName[h])
+                }
+    
+                if (data.SearchName.length-1 == h) {
+                    data.SearchName = cachearr.join(' ')
+                    console.log(data.SearchName)
+                    break;
+                }
+    
+            }
+        }
+
+        else if (data.SearchName.length == 1) {
+            data.SearchName = data.SearchName.join(' ')
+        }
+        
         data.PostLimit =  data.PostLimit != null ? Number(data.PostLimit.trim()) : 0 ;
         data.PromptDownload = data.PromptDownload.trim();
         inputclean = true;
@@ -261,7 +289,7 @@ const getresultdan = async () => {
                         const name = `${post.md5}.${post.file_ext}`
                         const shref = url.href
 
-                        if (shref == invalid || `${post.file_ext}` == 'mp4' || `${post.md5}` == 'undefined') { --i; }
+                        if (shref == invalid || `${post.file_ext}` == 'mp4' || `${post.md5}` == 'undefined') { i--; }
 
                         else
                         {
@@ -338,7 +366,7 @@ const ParseBooruResults = async () => {
                         const _sitename = sitename[0]
 
                         
-                        if (_ext == 'mp4' || id == `undefined`) { --k; }
+                        if (_ext == 'mp4' || id == `undefined`) { k--; }
                         
                         else 
                         {
@@ -388,6 +416,7 @@ var nsconf = {
 
 const getresultnh = async () => {
     let isnum = /^\d+$/.test(data.SearchName);
+    data.SearchName.replace(/[_]/g, ' ')
 
     if (isnum) {
         await nsite.exists(data.SearchName)
