@@ -10,12 +10,12 @@
   **Use Powershell to Run the Script.** <br />
   **Or just run the start.bat file for ease of use I guess.** <br />
   <br />
-  **It now supports Multi-tagging. [Depends on the site limits]** <br />
+  **It now supports Multi-tagging. [ Depends on the site limits ]** <br />
   TODO : Source Function to Parse Image's Origin <br />
   TODO : Add a max image data size filter <br />
   TODO : Refactor Everything once the Script is finished <br />
   <br />
-  ISSUE : Site's with Booru api serves some links behind a paywall, it may cause some pseudo-success downloads. <br />  
+  ISSUE : Sites with the Booru api serves some links behind a paywall, it may cause some pseudo-success downloads. <br />  
 
 ## Sites it can fetch <br />
 > Danbooru <br />
@@ -25,4 +25,4 @@
 > nhentai <br />
  and etc ( too lazy to add them here ) <br />
 
-@core
+@c0re
