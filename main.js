@@ -147,25 +147,24 @@ const SanitizeInputs = async () => {
     var inputclean = false;
 
     try {
-        data.SearchName = data.SearchName.trim().toLowerCase().split(' ')
-        let cachearr = []
+        data.SearchName = data.SearchName.trim().toLowerCase().split(' ');
+        let cachearr = [];
 
         if (data.SearchName.length > 1) {
             for (var h = 0; data.SearchName.length > h; h++) {
-                let hasprths = /[(]/.test(data.SearchName[h])
-                let pred_prths = /[(]/.test(data.SearchName[h+1]) ? true : false
+                let hasprths = /[(]/.test(data.SearchName[h]);
+                let pred_prths = /[(]/.test(data.SearchName[h+1]) ? true : false;
     
                 if (hasprths) {
-                    cachearr.push(`${data.SearchName[h-1]}_${data.SearchName[h]}`)
+                    cachearr.push(`${data.SearchName[h-1]}_${data.SearchName[h]}`);
                 }
     
                 else if (!hasprths && !pred_prths) {
-                    cachearr.push(data.SearchName[h])
+                    cachearr.push(data.SearchName[h]);
                 }
     
                 if (data.SearchName.length-1 == h) {
-                    data.SearchName = cachearr.join(' ')
-                    console.log(data.SearchName)
+                    data.SearchName = cachearr.join(' ');
                     break;
                 }
     
@@ -173,7 +172,7 @@ const SanitizeInputs = async () => {
         }
 
         else if (data.SearchName.length == 1) {
-            data.SearchName = data.SearchName.join(' ')
+            data.SearchName = data.SearchName.join(' ');
         }
         
         data.PostLimit =  data.PostLimit != null ? Number(data.PostLimit.trim()) : 0 ;
